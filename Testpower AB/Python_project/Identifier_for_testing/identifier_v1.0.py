@@ -3,7 +3,7 @@ import time
 from can import Message
 
 
-def message_array(hex_data, start_bit=2):
+def message_array(hex_data, start_bit=2):  # splits data into byte sized packets
     data = []
     while start_bit < len(hex_data):
         data.append(int(hex_data[start_bit:start_bit + 2], 16))
@@ -11,7 +11,7 @@ def message_array(hex_data, start_bit=2):
     return data
 
 
-def signedhex(val, nbits):
+def signedhex(val, nbits):  # converts signed decimal into 2's complement hex, of nbits bit-size
     val = hex((val + (1 << nbits)) % (1 << nbits))
     return '0x' + val[2:].zfill(int(nbits / 4))
 
@@ -117,15 +117,16 @@ class Parser(object):
                 to_can_msg = message_array(hex_data)
                 print(Message(arbitration_id=109, data=to_can_msg))
 
-            elif self.headers[i] == 'Urange':  # ID 110 byte size = 4
+            elif self.headers[i] == 'Urange':  # ID 110 byte size = 2
                 to_can_msg = []
-                byte_size = 4
+                byte_size = 2
                 if self.row_data[i] == 'Auto':
-                    print(Message(arbitration_id=110, data=b'Auto'))
+                    print(Message(arbitration_id=110, data=[0xff, 0xff]))
                     pass
                 else:
                     self.row_data[i] = int(float(self.row_data[i]) * 10)
-                    hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
                     to_can_msg = message_array(hex_data)
                     print(Message(arbitration_id=110, data=to_can_msg))
                     pass
@@ -182,15 +183,16 @@ class Parser(object):
                 to_can_msg = message_array(hex_data)
                 print(Message(arbitration_id=116, data=to_can_msg))
 
-            elif self.headers[i] == 'Irange':  # ID 117 byte size = 4
+            elif self.headers[i] == 'Irange':  # ID 117 byte size = 2
                 to_can_msg = []
-                byte_size = 4
+                byte_size = 2
                 if self.row_data[i] == 'Auto':
-                    print(Message(arbitration_id=117, data=b'Auto'))
+                    print(Message(arbitration_id=117, data=[0xff, 0xff]))
                     pass
                 else:
                     self.row_data[i] = int(float(self.row_data[i]) * 10)
-                    hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
                     to_can_msg = message_array(hex_data)
                     print(Message(arbitration_id=117, data=to_can_msg))
                     pass
@@ -225,11 +227,11 @@ class Parser(object):
                 to_can_msg = message_array(hex_data)
                 print(Message(arbitration_id=120, data=to_can_msg))
 
-            elif self.headers[i] == 'PF-1':  # ID 121, byte size = 5
+            elif self.headers[i] == 'PF-1':  # ID 121, byte size = 3
                 to_can_msg = []
-                byte_size = 5
+                byte_size = 3
                 if self.row_data[i] == 'Error    ':
-                    print(Message(arbitration_id=121, data=b'Error'))
+                    print(Message(arbitration_id=121, data=[0xa0, 0xa0, 0xa0]))
                     pass
                 else:
                     self.row_data[i] = int(float(self.row_data[i]) * 1000)
@@ -239,11 +241,11 @@ class Parser(object):
                     print(Message(arbitration_id=121, data=to_can_msg))
                     pass
 
-            elif self.headers[i] == 'Phi-1':  # ID 122, byte size = 5
+            elif self.headers[i] == 'Phi-1':  # ID 122, byte size = 3
                 to_can_msg = []
-                byte_size = 5
+                byte_size = 3
                 if self.row_data[i] == 'Error    ':
-                    print(Message(arbitration_id=122, data=b'Error'))
+                    print(Message(arbitration_id=122, data=[0xa0, 0xa0, 0xa0]))
                     pass
                 else:
                     self.row_data[i] = int(float(self.row_data[i]) * 1000)
@@ -253,22 +255,22 @@ class Parser(object):
                     print(Message(arbitration_id=122, data=to_can_msg))
                     pass
 
-            elif self.headers[i] == 'FreqU-1':  # ID 123, byte size = 5
+            elif self.headers[i] == 'FreqU-1':  # ID 123, byte size = 3
                 to_can_msg = []
-                byte_size = 5
+                byte_size = 3
                 if self.row_data[i] == 'Error    ':
-                    print(Message(arbitration_id=123, data=b'Error'))
+                    print(Message(arbitration_id=123, data=[0xa0, 0xa0, 0xa0]))
                 else:
                     self.row_data[i] = int(float(self.row_data[i]) * 1000)
                     hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
                     to_can_msg = message_array(hex_data)
                     print(Message(arbitration_id=123, data=to_can_msg))
 
-            elif self.headers[i] == 'FreqI-1':  # ID 124, byte size = 5
+            elif self.headers[i] == 'FreqI-1':  # ID 124, byte size = 3
                 to_can_msg = []
-                byte_size = 5
+                byte_size = 3
                 if self.row_data[i] == 'Error    ':
-                    print(Message(arbitration_id=124, data=b'Error'))
+                    print(Message(arbitration_id=124, data=[0xa0, 0xa0, 0xa0]))
                     pass
                 else:
                     self.row_data[i] = int(float(self.row_data[i]) * 1000)
@@ -344,7 +346,7 @@ class Parser(object):
                 to_can_msg = []
                 byte_size = 4
                 if self.row_data[i] == 'NAN':
-                    print(Message(arbitration_id=132,data=[0xff, 0xff, 0xff, 0xfe]))
+                    print(Message(arbitration_id=132, data=[0x0a, 0x0a, 0x0a, 0x0a]))
                     pass
                 else:
                     time_play = int(float(self.row_data[i].replace(":", "")) * 1000)
@@ -357,89 +359,134 @@ class Parser(object):
             elif self.headers[i] == 'WP-1':  # ID 133 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                self.row_data[i] = int(float(self.row_data[i]) * 10E8)
-                # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
-                hex_data = signedhex(self.row_data[i], byte_size * 8)
-                to_can_msg = message_array(hex_data)
-                print(Message(arbitration_id=133, data=to_can_msg))
+                if self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=133, data=[0x0a, 0x0a, 0x0a]))
+                    pass
+                else:
+                    self.row_data[i] = int(float(self.row_data[i]) * 10E8)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
+                    to_can_msg = message_array(hex_data)
+                    print(Message(arbitration_id=133, data=to_can_msg))
+                    pass
 
             elif self.headers[i] == 'WPp-1':  # ID 134 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                self.row_data[i] = int(float(self.row_data[i]) * 10E8)
-                # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
-                hex_data = signedhex(self.row_data[i], byte_size * 8)
-                to_can_msg = message_array(hex_data)
-                print(Message(arbitration_id=134, data=to_can_msg))
+                if self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=134, data=[0x0a, 0x0a, 0x0a]))
+                    pass
+                else:
+                    self.row_data[i] = int(float(self.row_data[i]) * 10E8)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
+                    to_can_msg = message_array(hex_data)
+                    print(Message(arbitration_id=134, data=to_can_msg))
+                    pass
 
             elif self.headers[i] == 'WPm-1':  # ID 135 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                self.row_data[i] = int(float(self.row_data[i]) * 10E8)
-                # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
-                hex_data = signedhex(self.row_data[i], byte_size * 8)
-                to_can_msg = message_array(hex_data)
-                print(Message(arbitration_id=135, data=to_can_msg))
+                if self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=135, data=[0x0a, 0x0a, 0x0a]))
+                    pass
+                else:
+                    self.row_data[i] = int(float(self.row_data[i]) * 10E8)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
+                    to_can_msg = message_array(hex_data)
+                    print(Message(arbitration_id=135, data=to_can_msg))
+                    pass
 
             elif self.headers[i] == 'q-1':  # ID 136 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                self.row_data[i] = int(float(self.row_data[i]) * 10E6)
-                # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
-                hex_data = signedhex(self.row_data[i], byte_size * 8)
-                to_can_msg = message_array(hex_data)
-                print(Message(arbitration_id=136, data=to_can_msg))
+                if self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=136, data=[0x0a, 0x0a, 0x0a]))
+                    pass
+                else:
+                    self.row_data[i] = int(float(self.row_data[i]) * 10E6)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
+                    to_can_msg = message_array(hex_data)
+                    print(Message(arbitration_id=136, data=to_can_msg))
+                    pass
 
             elif self.headers[i] == 'qp-1':  # ID 135 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                self.row_data[i] = int(float(self.row_data[i]) * 10E6)
-                # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
-                hex_data = signedhex(self.row_data[i], byte_size * 8)
-                to_can_msg = message_array(hex_data)
-                print(Message(arbitration_id=135, data=to_can_msg))
+                if self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=136, data=[0x0a, 0x0a, 0x0a]))
+                    pass
+                else:
+                    self.row_data[i] = int(float(self.row_data[i]) * 10E6)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
+                    to_can_msg = message_array(hex_data)
+                    print(Message(arbitration_id=135, data=to_can_msg))
+                    pass
 
             elif self.headers[i] == 'qm-1':  # ID 136 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                self.row_data[i] = int(float(self.row_data[i]) * 10E6)
-                # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
-                hex_data = signedhex(self.row_data[i], byte_size * 8)
-                to_can_msg = message_array(hex_data)
-                print(Message(arbitration_id=136, data=to_can_msg))
+                if self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=136, data=[0x0a, 0x0a, 0x0a]))
+                    pass
+                else:
+                    self.row_data[i] = int(float(self.row_data[i]) * 10E6)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
+                    to_can_msg = message_array(hex_data)
+                    print(Message(arbitration_id=136, data=to_can_msg))
+                    pass
 
             elif self.headers[i] == 'U(k)-1-Total':  # ID 139 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                self.row_data[i] = int(float(self.row_data[i]) * 10E3)
-                # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
-                hex_data = signedhex(self.row_data[i], byte_size * 8)
-                to_can_msg = message_array(hex_data)
-                print(Message(arbitration_id=139, data=to_can_msg))
+                if self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=136, data=[0x0a, 0x0a, 0x0a]))
+                    pass
+                else:
+                    self.row_data[i] = int(float(self.row_data[i]) * 10E3)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
+                    to_can_msg = message_array(hex_data)
+                    print(Message(arbitration_id=139, data=to_can_msg))
+                    pass
 
             elif self.headers[i] == 'I(k)-1-Total':  # ID 140 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                self.row_data[i] = int(float(self.row_data[i]) * 10E3)
-                # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
-                hex_data = signedhex(self.row_data[i], byte_size * 8)
-                to_can_msg = message_array(hex_data)
-                print(Message(arbitration_id=140, data=to_can_msg))
+                if self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=136, data=[0x0a, 0x0a, 0x0a]))
+                    pass
+                else:
+                    self.row_data[i] = int(float(self.row_data[i]) * 10E3)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
+                    to_can_msg = message_array(hex_data)
+                    print(Message(arbitration_id=140, data=to_can_msg))
+                    pass
 
             elif self.headers[i] == 'P(k)-1-Total':  # ID 141 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                self.row_data[i] = int(float(self.row_data[i]) * 10E3)
-                # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
-                hex_data = signedhex(self.row_data[i], byte_size * 8)
-                to_can_msg = message_array(hex_data)
-                print(Message(arbitration_id=141, data=to_can_msg))
+                if self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=136, data=[0x0a, 0x0a, 0x0a]))
+                    pass
+                else:
+                    self.row_data[i] = int(float(self.row_data[i]) * 10E3)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
+                    to_can_msg = message_array(hex_data)
+                    print(Message(arbitration_id=141, data=to_can_msg))
+                    pass
 
             elif self.headers[i] == 'Uhdf(k)-1-Total':  # ID 142, byte size = 3
                 to_can_msg = []
                 byte_size = 3
                 if self.row_data[i] == 'NAN':
-                    print(Message(arbitration_id=142, data=b'NAN'))
+                    print(Message(arbitration_id=142, data=[0x0a, 0x0a, 0x0a]))
                     pass
                 else:
                     self.row_data[i] = int(float(self.row_data[i]) * 1000)
@@ -453,7 +500,7 @@ class Parser(object):
                 to_can_msg = []
                 byte_size = 3
                 if self.row_data[i] == 'NAN':
-                    print(Message(arbitration_id=143, data=b'NAN'))
+                    print(Message(arbitration_id=143, data=[0x0a, 0x0a, 0x0a]))
                     pass
                 else:
                     self.row_data[i] = int(float(self.row_data[i]) * 1000)
@@ -467,7 +514,7 @@ class Parser(object):
                 to_can_msg = []
                 byte_size = 3
                 if self.row_data[i] == 'NAN':
-                    print(Message(arbitration_id=144, data=b'NAN'))
+                    print(Message(arbitration_id=144, data=[0x0a, 0x0a, 0x0a]))
                     pass
                 else:
                     self.row_data[i] = int(float(self.row_data[i]) * 1000)
@@ -480,17 +527,28 @@ class Parser(object):
             elif self.headers[i] == 'Uthd-1':  # ID 145 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                self.row_data[i] = int(float(self.row_data[i]) * 10E4)
-                # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
-                hex_data = signedhex(self.row_data[i], byte_size * 8)
-                to_can_msg = message_array(hex_data)
-                print(Message(arbitration_id=145, data=to_can_msg))
+                if self.row_data[i] == 'Error    ':
+                    print(Message(arbitration_id=145, data=[0xa0, 0xa0, 0xa0]))
+                    pass
+                elif self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=145, data=[0x0a, 0x0a, 0x0a]))
+                    pass
+                else:
+                    self.row_data[i] = int(float(self.row_data[i]) * 10E4)
+                    # hex_data = '0x{0:0{1}X}'.format(self.row_data[i], byte_size * 2)
+                    hex_data = signedhex(self.row_data[i], byte_size * 8)
+                    to_can_msg = message_array(hex_data)
+                    print(Message(arbitration_id=145, data=to_can_msg))
+                    pass
 
             elif self.headers[i] == 'Ithd-1':  # ID 146 byte size = 3
                 to_can_msg = []
                 byte_size = 3
-                if self.row_data[i]=='Error    ':
-                    print(Message(arbitration_id=146, data = [0xff,0xff,0xff]))
+                if self.row_data[i] == 'Error    ':
+                    print(Message(arbitration_id=146, data=[0xa0, 0xa0, 0xa0]))
+                    pass
+                elif self.row_data[i] == 'NAN':
+                    print(Message(arbitration_id=146, data=[0x0a, 0x0a, 0x0a]))
                     pass
                 else:
                     self.row_data[i] = int(float(self.row_data[i]) * 10E4)
@@ -558,7 +616,7 @@ class FileTailer(object):
                 self.file.seek(where)
 
 
-csv_reader = csv.reader(FileTailer(open('myfile2.CSV')))
+csv_reader = csv.reader(FileTailer(open('myfile3.CSV')))
 
 for row in csv_reader:
     print("Read row: %r" % (row,))
