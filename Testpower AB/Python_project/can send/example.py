@@ -2,7 +2,7 @@
 # coding: utf-8
 
 """
-This example shows how sending a single message works.
+This example shows how to set up different interfaces and send and receive single message.
 """
 
 from __future__ import print_function
@@ -22,12 +22,17 @@ def send_one():
     # ...
 
     msg = can.Message(arbitration_id=0xc0ffee, data=[0, 25, 0, 1, 3, 1, 4, 1], extended_id=True)
+    print("I'm in here")
 
     try:
-        bus.send_periodic(msg, period=2)
+        bus.send(msg)
         print("Message sent on {}".format(bus.channel_info))
+        print(msg)
+        bus.recv(timeout=2)
     except can.CanError:
         print("Message NOT sent")
 
-    if __name__ == '__main__':
-        send_one()
+if __name__ == '__main__':
+    send_one()
+
+    print("Done with function")
