@@ -1,0 +1,13 @@
+04th May, 2019
+CAN send with pcan
+
+- CAN messages broadcasting over peak CAN-to-USB system
+- correct implementation of send_periodic realized, without using a bus to read the traffic
+
+- 120ohm termination resistor required(most probably)
+- sudo modprobe pcan, if drivers don't load upon system restart
+- CAN bus display on the oscilloscope found. Needs to be verified with correct data.
+
+- Check the ACK,CRC etc frames in the python-can message.
+
+
