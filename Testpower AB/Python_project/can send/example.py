@@ -12,11 +12,11 @@ import can
 def send_one():
     # this uses the default configuration (for example from the config file)
     # see http://python-can.readthedocs.io/en/latest/configuration.html
-    bus = can.interface.Bus(bustype='virtual', channel='test')
+    # bus = can.interface.Bus(bustype='virtual', channel='test')
 
     # Using specific buses works similar:
     # bus = can.interface.Bus(bustype='socketcan', channel='vcan0', bitrate=250000)
-    # bus = can.interface.Bus(bustype='pcan', channel='PCAN_USBBUS1', bitrate=250000)
+    bus = can.interface.Bus(bustype='pcan', channel='PCAN_USBBUS1', bitrate=250000)
     # bus = can.interface.Bus(bustype='ixxat', channel=0, bitrate=250000)
     # bus = can.interface.Bus(bustype='vector', app_name='CANalyzer', channel=0,bitrate=250000)
     # ...
